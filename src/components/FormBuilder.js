@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { Button, TextField, Container, Box, Typography } from '@mui/material';
+import { Button, TextField, Container, Box, Typography, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { EditorState, convertToRaw } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
@@ -13,7 +14,8 @@ function FormBuilder() {
     title: '',
     tags: '',
     introduction: '',
-    bannerImage: null
+    bannerImage: null,
+    bannerImagePreview: null
   });
   const [sections, setSections] = useState([]);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
@@ -30,7 +32,25 @@ function FormBuilder() {
 
   const handleBannerImageUpload = (event) => {
     const file = event.target.files[0];
-    setFormDetails(prev => ({ ...prev, bannerImage: file }));
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormDetails(prev => ({ 
+          ...prev, 
+          bannerImage: file,
+          bannerImagePreview: reader.result
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeBannerImage = () => {
+    setFormDetails(prev => ({
+      ...prev,
+      bannerImage: null,
+      bannerImagePreview: null
+    }));
   };
 
   const addSection = useCallback(() => {
@@ -88,6 +108,8 @@ function FormBuilder() {
   return (
     <Container component="form" onSubmit={handleSubmit} sx={{ padding: 3, backgroundColor: '#fff', boxShadow: '0 3px 5px rgba(0,0,0,0.1)', borderRadius: '8px', mt: 4 }}>
       <Typography variant="h4" gutterBottom>Form Builder</Typography>
+      
+      {/* Title */}
       <TextField
         fullWidth
         label="Title"
@@ -95,14 +117,39 @@ function FormBuilder() {
         value={formDetails.title}
         onChange={(e) => handleFormChange('title', e.target.value)}
       />
-      <TextField
-        fullWidth
-        label="Tags"
-        margin="normal"
-        value={formDetails.tags}
-        onChange={(e) => handleFormChange('tags', e.target.value)}
-      />
+
+      {/* Banner Image */}
+      <Box sx={{ mt: 2, mb: 2 }}>
+        <input
+          accept="image/*"
+          style={{ display: 'none' }}
+          id="banner-image-upload"
+          type="file"
+          onChange={handleBannerImageUpload}
+        />
+        <label htmlFor="banner-image-upload">
+          <Button variant="contained" component="span">
+            Upload Banner Image
+          </Button>
+        </label>
+        {formDetails.bannerImagePreview && (
+          <Box sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
+            <img 
+              src={formDetails.bannerImagePreview} 
+              alt="Banner preview" 
+              style={{ width: '100px', height: '100px', objectFit: 'cover', marginRight: '10px' }} 
+            />
+            <Typography variant="body2" sx={{ flexGrow: 1 }}>{formDetails.bannerImage.name}</Typography>
+            <IconButton onClick={removeBannerImage} size="small">
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        )}
+      </Box>
+
+      {/* Introduction Text */}
       <Box sx={{ border: '1px solid #ccc', borderRadius: '4px', mt: 2, mb: 2 }}>
+        <Typography variant="subtitle1" sx={{ mb: 1 }}>Introduction</Typography>
         <Editor
           editorState={introductionState}
           onEditorStateChange={handleIntroductionChange}
@@ -112,20 +159,18 @@ function FormBuilder() {
           editorStyle={{ height: '200px', padding: '0 10px' }}
         />
       </Box>
-      <input
-        accept="image/*"
-        style={{ display: 'none' }}
-        id="banner-image-upload"
-        type="file"
-        onChange={handleBannerImageUpload}
+
+      {/* Tags */}
+      <TextField
+        fullWidth
+        label="Tags"
+        margin="normal"
+        value={formDetails.tags}
+        onChange={(e) => handleFormChange('tags', e.target.value)}
       />
-      <label htmlFor="banner-image-upload">
-        <Button variant="contained" component="span">
-          Upload Banner Image
-        </Button>
-      </label>
-      {formDetails.bannerImage && <p>{formDetails.bannerImage.name}</p>}
-      
+
+      {/* Sections */}
+      <Typography variant="h5" sx={{ mt: 4, mb: 2 }}>Sections</Typography>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="sections">
           {(provided) => (
