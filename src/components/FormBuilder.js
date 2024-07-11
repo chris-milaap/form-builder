@@ -106,10 +106,15 @@ function FormBuilder() {
   }
 
   return (
-    <Container component="form" onSubmit={handleSubmit} sx={{ padding: 3, backgroundColor: '#fff', boxShadow: '0 3px 5px rgba(0,0,0,0.1)', borderRadius: '8px', mt: 4 }}>
-      <Typography variant="h4" gutterBottom>Form Builder</Typography>
+    <Container maxWidth="lg" component="form" onSubmit={handleSubmit} sx={{ 
+      padding: { xs: 2, md: 3 }, 
+      backgroundColor: 'background.paper', 
+      boxShadow: '0 3px 5px rgba(0,0,0,0.1)', 
+      borderRadius: '8px', 
+      mt: { xs: 2, md: 4 } 
+    }}>
+      <Typography variant="h2" gutterBottom>Form Builder</Typography>
       
-      {/* Title */}
       <TextField
         fullWidth
         label="Title"
@@ -118,7 +123,6 @@ function FormBuilder() {
         onChange={(e) => handleFormChange('title', e.target.value)}
       />
 
-      {/* Banner Image */}
       <Box sx={{ mt: 2, mb: 2 }}>
         <input
           accept="image/*"
@@ -128,7 +132,7 @@ function FormBuilder() {
           onChange={handleBannerImageUpload}
         />
         <label htmlFor="banner-image-upload">
-          <Button variant="contained" component="span">
+          <Button variant="contained" component="span" size="large">
             Upload Banner Image
           </Button>
         </label>
@@ -139,7 +143,7 @@ function FormBuilder() {
               alt="Banner preview" 
               style={{ width: '100px', height: '100px', objectFit: 'cover', marginRight: '10px' }} 
             />
-            <Typography variant="body2" sx={{ flexGrow: 1 }}>{formDetails.bannerImage.name}</Typography>
+            <Typography variant="body1" sx={{ flexGrow: 1 }}>{formDetails.bannerImage.name}</Typography>
             <IconButton onClick={removeBannerImage} size="small">
               <CloseIcon />
             </IconButton>
@@ -147,20 +151,18 @@ function FormBuilder() {
         )}
       </Box>
 
-      {/* Introduction Text */}
-      <Box sx={{ border: '1px solid #ccc', borderRadius: '4px', mt: 2, mb: 2 }}>
-        <Typography variant="subtitle1" sx={{ mb: 1 }}>Introduction</Typography>
+      <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: '4px', mt: 2, mb: 2, p: 2 }}>
+        <Typography variant="h4" sx={{ mb: 1 }}>Introduction</Typography>
         <Editor
           editorState={introductionState}
           onEditorStateChange={handleIntroductionChange}
           toolbar={{
             options: ['inline', 'blockType', 'fontSize', 'list', 'textAlign', 'link', 'embedded', 'emoji', 'image', 'remove', 'history'],
           }}
-          editorStyle={{ height: '200px', padding: '0 10px' }}
+          editorStyle={{ height: '200px', padding: '10px' }}
         />
       </Box>
 
-      {/* Tags */}
       <TextField
         fullWidth
         label="Tags"
@@ -169,8 +171,7 @@ function FormBuilder() {
         onChange={(e) => handleFormChange('tags', e.target.value)}
       />
 
-      {/* Sections */}
-      <Typography variant="h5" sx={{ mt: 4, mb: 2 }}>Sections</Typography>
+      <Typography variant="h3" sx={{ mt: { xs: 3, md: 4 }, mb: 2 }}>Sections</Typography>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="sections">
           {(provided) => (
@@ -199,15 +200,17 @@ function FormBuilder() {
         </Droppable>
       </DragDropContext>
       
-      <Button onClick={addSection} variant="contained" sx={{ mt: 2 }}>
-        Add Section
-      </Button>
-      <Button onClick={togglePreviewMode} variant="contained" color="secondary" sx={{ mt: 2, ml: 2 }}>
-        Preview
-      </Button>
-      <Button type="submit" variant="contained" color="primary" sx={{ mt: 2, ml: 2 }}>
-        Publish
-      </Button>
+      <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+        <Button onClick={addSection} variant="contained" size="large">
+          Add Section
+        </Button>
+        <Button onClick={togglePreviewMode} variant="outlined" size="large">
+          Preview
+        </Button>
+        <Button type="submit" variant="contained" color="primary" size="large">
+          Publish
+        </Button>
+      </Box>
     </Container>
   );
 }
