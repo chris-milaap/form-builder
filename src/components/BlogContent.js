@@ -26,7 +26,7 @@ const BlogContent = ({ introduction, sections }) => {
               mb: 2, 
               wordWrap: 'break-word', 
               textAlign: 'left',
-              fontSize: '2rem' // Adjusted for consistency
+              fontSize: '2rem'
             }}
           >
             {section.title}
@@ -39,8 +39,8 @@ const BlogContent = ({ introduction, sections }) => {
                 style={{ 
                   width: '100%', 
                   height: 'auto', 
-                  objectFit: 'contain', 
-                  maxHeight: '300px' 
+                  objectFit: 'contain',
+                  maxHeight: '300px'
                 }} 
               />
             </Box>
@@ -48,11 +48,11 @@ const BlogContent = ({ introduction, sections }) => {
           <Typography 
             variant="body1" 
             sx={{ 
-              fontSize: '1.2rem', // Adjusted for consistency
+              fontSize: '1.2rem',
               lineHeight: 1.8, 
               wordWrap: 'break-word',
               textAlign: 'left', 
-              '& img': { maxWidth: '100%', height: 'auto' } 
+              '& img': { maxWidth: '100%', height: 'auto', objectFit: 'contain' } 
             }} 
             dangerouslySetInnerHTML={{ __html: section.description }} 
           />

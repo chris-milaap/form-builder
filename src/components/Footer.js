@@ -1,9 +1,31 @@
 import React from 'react';
-import { Box, Typography, List, ListItem, Link, Button, Grid, IconButton } from '@mui/material';
+import { Box, Typography, List, ListItem, Link, Grid, IconButton, styled } from '@mui/material';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import YouTubeIcon from '@mui/icons-material/YouTube';
+
+const CustomButton = styled('button')(({ theme }) => ({
+  padding: '10px 20px',
+  borderRadius: '25px',
+  border: 'none',
+  textTransform: 'none',
+  fontWeight: 'bold',
+  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+  transition: 'all 0.3s ease',
+  cursor: 'pointer',
+  '&:hover': {
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.15)',
+    transform: 'translateY(-2px)',
+  },
+  '&.contained': {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.dark,
+    },
+  },
+}));
 
 const Footer = () => {
   return (
@@ -55,9 +77,9 @@ const Footer = () => {
 
         {/* Right Section */}
         <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'center', md: 'right' } }}>
-          <Button variant="contained" sx={{ mb: 2, backgroundColor: '#9c3353', '&:hover': { backgroundColor: '#7a2941' } }}>
+          <CustomButton className="contained" sx={{ mb: 2, backgroundColor: '#9c3353', '&:hover': { backgroundColor: '#7a2941' } }}>
             Start a fundraiser
-          </Button>
+          </CustomButton>
           <Box sx={{ mb: 2 }}>
             <Link href="#" underline="none" color="inherit" sx={{ mr: 2 }}>Pricing</Link>
             <Link href="#" underline="none" color="inherit" sx={{ mr: 2 }}>Reviews</Link>

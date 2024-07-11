@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, List, ListItem, ListItemText, Typography } from '@mui/material';
+import { Box, List, ListItem, ListItemText, Typography, Divider } from '@mui/material';
 
 const TOC = ({ sections }) => {
   const handleScroll = (event, index) => {
@@ -11,15 +11,35 @@ const TOC = ({ sections }) => {
   };
 
   return (
-    <Box sx={{ mb: 4 }}>
-      <Typography variant="h6" gutterBottom>
+    <Box sx={{ width: '100%', bgcolor: 'background.paper', borderRadius: 1, overflow: 'hidden' }}>
+      <Typography variant="h6" sx={{ p: 2, bgcolor: 'primary.main', color: 'primary.contrastText' }}>
         Table of Contents
       </Typography>
-      <List>
+      <List disablePadding>
         {sections.map((section, index) => (
-          <ListItem button component="a" href={`#section-${index}`} key={section.id} onClick={(event) => handleScroll(event, index)}>
-            <ListItemText primary={section.title} />
-          </ListItem>
+          <React.Fragment key={section.id}>
+            <ListItem 
+              button 
+              component="a" 
+              href={`#section-${index}`} 
+              onClick={(event) => handleScroll(event, index)}
+              sx={{ 
+                py: 1.5,
+                '&:hover': { 
+                  bgcolor: 'action.hover' 
+                } 
+              }}
+            >
+              <ListItemText 
+                primary={section.title} 
+                primaryTypographyProps={{ 
+                  variant: 'body2',
+                  fontWeight: 'medium'
+                }} 
+              />
+            </ListItem>
+            {index < sections.length - 1 && <Divider />}
+          </React.Fragment>
         ))}
       </List>
     </Box>

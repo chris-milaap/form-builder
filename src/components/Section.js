@@ -1,11 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, Box, Typography, IconButton } from '@mui/material';
+import { TextField, Box, Typography, IconButton, styled } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { EditorState, convertToRaw, ContentState } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
 import draftToHtml from 'draftjs-to-html';
 import htmlToDraft from 'html-to-draftjs';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+
+const CustomButton = styled('button')(({ theme }) => ({
+  padding: '10px 20px',
+  borderRadius: '25px',
+  border: 'none',
+  textTransform: 'none',
+  fontWeight: 'bold',
+  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+  transition: 'all 0.3s ease',
+  cursor: 'pointer',
+  '&:hover': {
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.15)',
+    transform: 'translateY(-2px)',
+  },
+  '&.contained': {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.dark,
+    },
+  },
+  '&.outlined': {
+    backgroundColor: 'transparent',
+    border: `2px solid ${theme.palette.primary.main}`,
+    color: theme.palette.primary.main,
+    '&:hover': {
+      backgroundColor: 'rgba(156, 51, 83, 0.04)',
+    },
+  },
+}));
 
 function Section({ section, updateSection, removeSection }) {
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
@@ -84,9 +114,14 @@ function Section({ section, updateSection, removeSection }) {
           onChange={handleImageUpload}
         />
         <label htmlFor={`section-image-upload-${section.id}`}>
-          <Button variant="contained" component="span" size="large" disabled={section.isCTA}>
+          <CustomButton 
+            className="contained" 
+            component="span" 
+            onClick={() => document.getElementById(`section-image-upload-${section.id}`).click()}
+            disabled={section.isCTA}
+          >
             Upload Section Image
-          </Button>
+          </CustomButton>
         </label>
         {imagePreview && (
           <Box sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
@@ -119,9 +154,9 @@ function Section({ section, updateSection, removeSection }) {
       </Box>
 
       {!section.isCTA && (
-        <Button variant="outlined" color="secondary" onClick={() => removeSection(section.id)} size="large" sx={{ mt: 2 }}>
+        <CustomButton className="outlined" onClick={() => removeSection(section.id)} sx={{ mt: 2 }}>
           Remove Section
-        </Button>
+        </CustomButton>
       )}
     </Box>
   );

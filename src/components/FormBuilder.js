@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Button, TextField, Container, Box, Typography, IconButton } from '@mui/material';
+import { TextField, Container, Box, Typography, IconButton, styled } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { EditorState, convertToRaw } from 'draft-js';
@@ -9,7 +9,37 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import Section from './Section';
 import FormPreview from './FormPreview';
 
-function FormBuilder() {
+const CustomButton = styled('button')(({ theme }) => ({
+  padding: '10px 20px',
+  borderRadius: '25px',
+  border: 'none',
+  textTransform: 'none',
+  fontWeight: 'bold',
+  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+  transition: 'all 0.3s ease',
+  cursor: 'pointer',
+  '&:hover': {
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.15)',
+    transform: 'translateY(-2px)',
+  },
+  '&.contained': {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.dark,
+    },
+  },
+  '&.outlined': {
+    backgroundColor: 'transparent',
+    border: `2px solid ${theme.palette.primary.main}`,
+    color: theme.palette.primary.main,
+    '&:hover': {
+      backgroundColor: 'rgba(156, 51, 83, 0.04)',
+    },
+  },
+}));
+
+function FormBuilder({ author }) {
   const [formDetails, setFormDetails] = useState({
     title: '',
     tags: '',
@@ -97,9 +127,9 @@ function FormBuilder() {
   if (isPreviewMode) {
     return (
       <Box>
-        <Button onClick={togglePreviewMode} variant="contained" sx={{ mb: 2 }}>
+        <CustomButton className="contained" onClick={togglePreviewMode} sx={{ mb: 2 }}>
           Back to Edit
-        </Button>
+        </CustomButton>
         <FormPreview formDetails={formDetails} sections={sections} />
       </Box>
     );
@@ -114,6 +144,7 @@ function FormBuilder() {
       mt: { xs: 2, md: 4 } 
     }}>
       <Typography variant="h2" gutterBottom>Form Builder</Typography>
+      <Typography variant="h4" gutterBottom>Welcome, {author}!</Typography>
       
       <TextField
         fullWidth
@@ -132,9 +163,9 @@ function FormBuilder() {
           onChange={handleBannerImageUpload}
         />
         <label htmlFor="banner-image-upload">
-          <Button variant="contained" component="span" size="large">
+          <CustomButton className="contained" component="span" onClick={() => document.getElementById('banner-image-upload').click()}>
             Upload Banner Image
-          </Button>
+          </CustomButton>
         </label>
         {formDetails.bannerImagePreview && (
           <Box sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
@@ -201,15 +232,15 @@ function FormBuilder() {
       </DragDropContext>
       
       <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-        <Button onClick={addSection} variant="contained" size="large">
+        <CustomButton className="contained" onClick={addSection}>
           Add Section
-        </Button>
-        <Button onClick={togglePreviewMode} variant="outlined" size="large">
+        </CustomButton>
+        <CustomButton className="outlined" onClick={togglePreviewMode}>
           Preview
-        </Button>
-        <Button type="submit" variant="contained" color="primary" size="large">
+        </CustomButton>
+        <CustomButton className="contained" type="submit">
           Publish
-        </Button>
+        </CustomButton>
       </Box>
     </Container>
   );
