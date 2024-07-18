@@ -37,7 +37,7 @@ const CustomButton = styled('button')(({ theme }) => ({
   },
 }));
 
-function Section({ section, updateSection, removeSection }) {
+function Section({ section, updateSection, removeSection, isRemovable }) {
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [imagePreview, setImagePreview] = useState(null);
 
@@ -94,7 +94,7 @@ function Section({ section, updateSection, removeSection }) {
       border: '1px solid',
       borderColor: 'divider',
       borderRadius: '6px',
-      backgroundColor: section.isCTA ? 'secondary.light' : 'background.paper'
+      backgroundColor: 'background.paper'
     }}>
       <TextField
         fullWidth
@@ -102,7 +102,6 @@ function Section({ section, updateSection, removeSection }) {
         value={section.title}
         onChange={(e) => updateSection(section.id, 'title', e.target.value)}
         margin="normal"
-        disabled={section.isCTA}
       />
 
       <Box sx={{ mt: 2, mb: 2 }}>
@@ -118,7 +117,6 @@ function Section({ section, updateSection, removeSection }) {
             className="contained" 
             component="span" 
             onClick={() => document.getElementById(`section-image-upload-${section.id}`).click()}
-            disabled={section.isCTA}
           >
             Upload Section Image
           </CustomButton>
@@ -149,11 +147,10 @@ function Section({ section, updateSection, removeSection }) {
             options: ['inline', 'blockType', 'fontSize', 'list', 'textAlign', 'link', 'embedded', 'emoji', 'image', 'remove', 'history'],
           }}
           editorStyle={{ height: '200px', padding: '10px' }}
-          readOnly={section.isCTA}
         />
       </Box>
 
-      {!section.isCTA && (
+      {isRemovable && (
         <CustomButton className="outlined" onClick={() => removeSection(section.id)} sx={{ mt: 2 }}>
           Remove Section
         </CustomButton>

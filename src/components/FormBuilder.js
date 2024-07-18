@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { TextField, Container, Box, Typography, IconButton, styled } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -7,6 +7,7 @@ import { Editor } from 'react-draft-wysiwyg';
 import draftToHtml from 'draftjs-to-html';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import Section from './Section';
+import FormBannerSelection from './FormBannerSelection';
 import FormPreview from './FormPreview';
 
 const CustomButton = styled('button')(({ theme }) => ({
@@ -41,15 +42,27 @@ const CustomButton = styled('button')(({ theme }) => ({
 
 function FormBuilder({ author }) {
   const [formDetails, setFormDetails] = useState({
-    title: '',
+    blogTitle: '',
+    author: author,
+    publicationDate: '',
     tags: '',
+    blogDescription: '',
+    selectedBanner: '',
+    bannerCopy: '',
+    ctaText: '',
+    selectedForm: '',
     introduction: '',
-    bannerImage: null,
-    bannerImagePreview: null
   });
   const [sections, setSections] = useState([]);
-  const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [introductionState, setIntroductionState] = useState(EditorState.createEmpty());
+  const [currentStep, setCurrentStep] = useState(1);
+
+  useEffect(() => {
+    // Add the initial mandatory section when the component mounts
+    if (sections.length === 0) {
+      addSection();
+    }
+  }, []);
 
   const handleFormChange = (field, value) => {
     setFormDetails(prev => ({ ...prev, [field]: value }));
@@ -60,37 +73,17 @@ function FormBuilder({ author }) {
     handleFormChange('introduction', draftToHtml(convertToRaw(state.getCurrentContent())));
   };
 
-  const handleBannerImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormDetails(prev => ({ 
-          ...prev, 
-          bannerImage: file,
-          bannerImagePreview: reader.result
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const removeBannerImage = () => {
-    setFormDetails(prev => ({
-      ...prev,
-      bannerImage: null,
-      bannerImagePreview: null
-    }));
-  };
-
-  const addSection = useCallback(() => {
+  const addSection = useCallback((e) => {
+    // Prevent default form submission
+    if (e) e.preventDefault();
+    
     const newSection = {
       id: `section-${Date.now()}`,
       title: '',
       description: '',
       image: null
     };
-    setSections(prev => [...prev, newSection]);
+    setSections(prevSections => [...prevSections, newSection]);
   }, []);
 
   const updateSection = useCallback((id, field, value) => {
@@ -100,7 +93,12 @@ function FormBuilder({ author }) {
   }, []);
 
   const removeSection = useCallback(id => {
-    setSections(prev => prev.filter(section => section.id !== id));
+    setSections(prev => {
+      if (prev.length > 1) {
+        return prev.filter(section => section.id !== id);
+      }
+      return prev; // Don't remove if it's the last section
+    });
   }, []);
 
   const onDragEnd = useCallback((result) => {
@@ -114,133 +112,112 @@ function FormBuilder({ author }) {
     });
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSave = (e) => {
     e.preventDefault();
+    // Logic to save the form data
     console.log('Form Details:', formDetails);
     console.log('Sections:', sections);
   };
 
-  const togglePreviewMode = () => {
-    setIsPreviewMode(!isPreviewMode);
+  const handleNext = (e) => {
+    e.preventDefault();
+    setCurrentStep(currentStep + 1);
   };
 
-  if (isPreviewMode) {
-    return (
-      <Box>
-        <CustomButton className="contained" onClick={togglePreviewMode} sx={{ mb: 2 }}>
-          Back to Edit
-        </CustomButton>
-        <FormPreview formDetails={formDetails} sections={sections} />
-      </Box>
-    );
+  const handleBack = () => {
+    setCurrentStep(currentStep - 1);
+  };
+
+  if (currentStep === 2) {
+    return <FormBannerSelection 
+      formDetails={formDetails} 
+      setFormDetails={setFormDetails} 
+      onNext={handleNext}
+      onBack={handleBack}
+    />;
+  }
+
+  if (currentStep === 3) {
+    return <FormPreview formDetails={formDetails} sections={sections} />;
   }
 
   return (
-    <Container maxWidth="lg" component="form" onSubmit={handleSubmit} sx={{ 
-      padding: { xs: 2, md: 3 }, 
-      backgroundColor: 'background.paper', 
-      boxShadow: '0 3px 5px rgba(0,0,0,0.1)', 
-      borderRadius: '8px', 
-      mt: { xs: 2, md: 4 } 
-    }}>
-      <Typography variant="h2" gutterBottom>Form Builder</Typography>
-      <Typography variant="h4" gutterBottom>Welcome, {author}!</Typography>
-      
-      <TextField
-        fullWidth
-        label="Title"
-        margin="normal"
-        value={formDetails.title}
-        onChange={(e) => handleFormChange('title', e.target.value)}
-      />
-
-      <Box sx={{ mt: 2, mb: 2 }}>
-        <input
-          accept="image/*"
-          style={{ display: 'none' }}
-          id="banner-image-upload"
-          type="file"
-          onChange={handleBannerImageUpload}
+    <Container maxWidth="lg">
+      <Box
+        component="form"
+        onSubmit={(e) => e.preventDefault()}
+        sx={{ 
+          padding: { xs: 2, md: 3 }, 
+          backgroundColor: 'background.paper', 
+          boxShadow: '0 3px 5px rgba(0,0,0,0.1)', 
+          borderRadius: '8px', 
+          mt: { xs: 2, md: 4 } 
+        }}
+      >
+        <Typography variant="h2" gutterBottom>Blog Content Builder</Typography>
+        <Typography variant="h4" gutterBottom>Welcome, {author}!</Typography>
+        
+        <TextField
+          fullWidth
+          label="Blog Title"
+          margin="normal"
+          value={formDetails.blogTitle}
+          onChange={(e) => handleFormChange('blogTitle', e.target.value)}
         />
-        <label htmlFor="banner-image-upload">
-          <CustomButton className="contained" component="span" onClick={() => document.getElementById('banner-image-upload').click()}>
-            Upload Banner Image
+
+        <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: '4px', mt: 2, mb: 2, p: 2 }}>
+          <Typography variant="h4" sx={{ mb: 1 }}>Introduction</Typography>
+          <Editor
+            editorState={introductionState}
+            onEditorStateChange={handleIntroductionChange}
+            toolbar={{
+              options: ['inline', 'blockType', 'fontSize', 'list', 'textAlign', 'link', 'embedded', 'emoji', 'image', 'remove', 'history'],
+            }}
+            editorStyle={{ height: '200px', padding: '10px' }}
+          />
+        </Box>
+
+        <Typography variant="h3" sx={{ mt: { xs: 3, md: 4 }, mb: 2 }}>Sections</Typography>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="sections">
+            {(provided) => (
+              <div {...provided.droppableProps} ref={provided.innerRef}>
+                {sections.map((section, index) => (
+                  <Draggable key={section.id} draggableId={section.id} index={index}>
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                      >
+                        <Section
+                          key={section.id}
+                          section={section}
+                          updateSection={updateSection}
+                          removeSection={removeSection}
+                          isRemovable={sections.length > 1}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+        
+        <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+          <CustomButton type="button" className="contained" onClick={addSection}>
+            Add Section
           </CustomButton>
-        </label>
-        {formDetails.bannerImagePreview && (
-          <Box sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
-            <img 
-              src={formDetails.bannerImagePreview} 
-              alt="Banner preview" 
-              style={{ width: '100px', height: '100px', objectFit: 'cover', marginRight: '10px' }} 
-            />
-            <Typography variant="body1" sx={{ flexGrow: 1 }}>{formDetails.bannerImage.name}</Typography>
-            <IconButton onClick={removeBannerImage} size="small">
-              <CloseIcon />
-            </IconButton>
-          </Box>
-        )}
-      </Box>
-
-      <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: '4px', mt: 2, mb: 2, p: 2 }}>
-        <Typography variant="h4" sx={{ mb: 1 }}>Introduction</Typography>
-        <Editor
-          editorState={introductionState}
-          onEditorStateChange={handleIntroductionChange}
-          toolbar={{
-            options: ['inline', 'blockType', 'fontSize', 'list', 'textAlign', 'link', 'embedded', 'emoji', 'image', 'remove', 'history'],
-          }}
-          editorStyle={{ height: '200px', padding: '10px' }}
-        />
-      </Box>
-
-      <TextField
-        fullWidth
-        label="Tags"
-        margin="normal"
-        value={formDetails.tags}
-        onChange={(e) => handleFormChange('tags', e.target.value)}
-      />
-
-      <Typography variant="h3" sx={{ mt: { xs: 3, md: 4 }, mb: 2 }}>Sections</Typography>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="sections">
-          {(provided) => (
-            <div {...provided.droppableProps} ref={provided.innerRef}>
-              {sections.map((section, index) => (
-                <Draggable key={section.id} draggableId={section.id} index={index}>
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                    >
-                      <Section
-                        key={section.id}
-                        section={section}
-                        updateSection={updateSection}
-                        removeSection={removeSection}
-                      />
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
-      
-      <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-        <CustomButton className="contained" onClick={addSection}>
-          Add Section
-        </CustomButton>
-        <CustomButton className="outlined" onClick={togglePreviewMode}>
-          Preview
-        </CustomButton>
-        <CustomButton className="contained" type="submit">
-          Publish
-        </CustomButton>
+          <CustomButton type="button" className="outlined" onClick={handleSave}>
+            Save
+          </CustomButton>
+          <CustomButton type="button" className="contained" onClick={handleNext}>
+            Next
+          </CustomButton>
+        </Box>
       </Box>
     </Container>
   );
